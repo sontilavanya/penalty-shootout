@@ -1,0 +1,12 @@
+{
+  "name": "penalty-shootout",
+  "version": "1.0.0",
+  "description": "2D Football Penalty Shootout Game",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": ["football", "penalty", "game", "canvas"],
+  "author": "",
+  "license": "MIT"
+}

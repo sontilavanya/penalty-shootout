@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Penalty Shootout</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ── HEADER ─────────────────────────────────────────────── -->
+  <header class="hdr">
+    <div class="hdr-inner">
+      <span class="logo">⚽ PENALTY SHOOTOUT</span>
+      <div class="hdr-controls">
+        <select id="diffSelect" class="diff-select">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <button id="resetBtn" class="btn-reset">↺ RESET</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── SCOREBOARD ─────────────────────────────────────────── -->
+  <div class="scoreboard">
+    <div class="sb-cell">
+      <span class="sb-val" id="sbGoals">0</span>
+      <span class="sb-lbl">GOALS</span>
+    </div>
+    <div class="sb-cell">
+      <span class="sb-val" id="sbShots">0</span>
+      <span class="sb-lbl">SHOTS</span>
+    </div>
+    <div class="sb-cell">
+      <span class="sb-val" id="sbSaves">0</span>
+      <span class="sb-lbl">SAVES</span>
+    </div>
+    <div class="sb-cell">
+      <span class="sb-val" id="sbMisses">0</span>
+      <span class="sb-lbl">MISSES</span>
+    </div>
+    <div class="sb-cell">
+      <span class="sb-val streak-val" id="sbStreak">0</span>
+      <span class="sb-lbl">STREAK</span>
+    </div>
+    <div class="sb-cell">
+      <span class="sb-val score-pts" id="sbPoints">0</span>
+      <span class="sb-lbl">POINTS</span>
+    </div>
+  </div>
+
+  <!-- ── CANVAS ─────────────────────────────────────────────── -->
+  <div class="canvas-wrap">
+    <canvas id="gameCanvas"></canvas>
+    <div id="overlay" class="overlay hidden"></div>
+  </div>
+
+  <!-- ── CONTROLS PANEL ─────────────────────────────────────── -->
+  <div class="controls-panel" id="controlsPanel">
+    <!-- Direction -->
+    <div class="ctrl-group">
+      <label class="ctrl-label">DIRECTION</label>
+      <div class="dir-grid">
+        <button class="dir-btn" data-h="left"  data-v="top"    title="Top Left">↖</button>
+        <button class="dir-btn" data-h="center" data-v="top"   title="Top Center">↑</button>
+        <button class="dir-btn" data-h="right"  data-v="top"   title="Top Right">↗</button>
+        <button class="dir-btn" data-h="left"   data-v="mid"   title="Mid Left">←</button>
+        <button class="dir-btn active" data-h="center" data-v="mid" title="Center">✦</button>
+        <button class="dir-btn" data-h="right"  data-v="mid"   title="Mid Right">→</button>
+        <button class="dir-btn" data-h="left"   data-v="low"   title="Low Left">↙</button>
+        <button class="dir-btn" data-h="center" data-v="low"   title="Low Center">↓</button>
+        <button class="dir-btn" data-h="right"  data-v="low"   title="Low Right">↘</button>
+      </div>
+    </div>
+
+    <!-- Power -->
+    <div class="ctrl-group">
+      <label class="ctrl-label">POWER <span id="powerVal">70</span>%</label>
+      <input type="range" id="powerSlider" min="20" max="100" value="70" class="power-slider" />
+      <div class="power-marks">
+        <span>Soft</span><span>Medium</span><span>Max</span>
+      </div>
+    </div>
+
+    <!-- Curve -->
+    <div class="ctrl-group">
+      <label class="ctrl-label">CURVE</label>
+      <div class="curve-btns">
+        <button class="curve-btn" data-curve="-1">◀ Left</button>
+        <button class="curve-btn active" data-curve="0">Straight</button>
+        <button class="curve-btn" data-curve="1">Right ▶</button>
+      </div>
+    </div>
+
+    <!-- SHOOT -->
+    <button id="shootBtn" class="shoot-btn">
+      <span class="shoot-icon">⚽</span> SHOOT!
+    </button>
+  </div>
+
+  <!-- ── RESULT TOAST ────────────────────────────────────────── -->
+  <div id="resultToast" class="result-toast hidden"></div>
+
+  <script src="game.js"></script>
+</body>
+</html>

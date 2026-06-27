@@ -184,6 +184,10 @@ const GK = {
     const dx = this.targetX - CFG.gkStartX;
     this.diveAngle = dx < -30 ? -1 : dx > 30 ? 1 : 0;  // -1=left, 0=up, 1=right
 
+    // Store what the GK predicted so outcome logic can compare
+    this.predictedH = diveH;
+    this.predictedV = diveV;
+
     return cfg.reactionMs;  // caller uses this for delay
   },
 
@@ -840,10 +844,10 @@ const Game = {
     // Compute target
     const { tx, ty } = Physics.targetXY(h, v, curve);
 
-    // Ask GK to decide (returns reaction delay)
+    // Ask GK to decide first (sets GK.predictedH/V) — returns reaction delay
     const reactionMs = GK.decide(h, v, power, curve, State.difficulty, State.diffLevel);
 
-    // Determine outcome before animation starts
+    // NOW determine outcome — uses GK.predictedH/V set above
     const outcome = this.resolveOutcome(h, v, power, curve, State.difficulty);
 
     // Track animation
@@ -884,23 +888,41 @@ const Game = {
   },
 
   /* ── Outcome logic ───────────────────────────────── */
+  // Called AFTER GK.decide() so GK.predictedH/V are already set.
+  // Outcome is driven by whether the GK dived to the RIGHT zone.
   resolveOutcome(h, v, power, curve, diff) {
-    const gkCfg  = CFG.difficulty[diff];
-    const accuracy = Math.min(0.95, gkCfg.accuracy + State.diffLevel * 0.018);
     const isTopCorner = (v === 'top') && (h !== 'center');
 
-    // Base miss chance (power > 90 and edge increases miss probability)
-    const missBase = power > 88 ? 0.10 : 0.04;
-    const postBase = isTopCorner ? 0.06 : 0.02;
-
+    // Small chance of miss (wayward shot) regardless of GK
+    const missChance = power > 88 ? 0.10 : 0.04;
+    const postChance = isTopCorner ? 0.06 : 0.02;
     const r = Math.random();
-    if (r < missBase) return 'miss';
-    if (r < missBase + postBase) return 'post';
+    if (r < missChance) return 'miss';
+    if (r < missChance + postChance) return 'post';
 
-    // Did keeper predict correctly?
-    const keeperSaves = Math.random() < accuracy;
-    if (keeperSaves) return 'save';
-    return 'goal';
+    // Did the GK dive to the correct horizontal AND vertical zone?
+    const hMatch = GK.predictedH === h;
+    const vMatch = GK.predictedV === v;
+
+    if (hMatch && vMatch) {
+      // GK got it exactly right — save, but harder shots still slip through
+      // on Easy the GK always saves a correct read; on Hard same, but harder to fool
+      const saveChance = diff === 'easy' ? 0.80 : diff === 'medium' ? 0.88 : 0.94;
+      return Math.random() < saveChance ? 'save' : 'goal';
+    }
+
+    if (hMatch && !vMatch) {
+      // Right direction but wrong height — partial reach, low save chance
+      return Math.random() < 0.18 ? 'save' : 'goal';
+    }
+
+    if (!hMatch && vMatch) {
+      // Wrong side — GK dives away, no save
+      return Math.random() < 0.05 ? 'save' : 'goal';
+    }
+
+    // Completely wrong — ball flies into empty corner → GOAL
+    return Math.random() < 0.03 ? 'save' : 'goal';
   },
 
   /* ── Apply outcome after animation ──────────────── */
